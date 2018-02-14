@@ -71,10 +71,10 @@ void CAWarningTask(void *pvParameters)
 
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
 
-		for (i = 0; i<100000;i++){
-
-			gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
-		}
+//		for (i = 0; i<100000;i++){
+//
+//			gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
+//		}
 
 	}
 
