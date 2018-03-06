@@ -67,7 +67,7 @@ void CAWarningTask(void *pvParameters)
 	while(1)
 	{
 
-		vTaskDelayUntil(&xLastWakeTime, 20000); //9ms
+		vTaskDelayUntil(&xLastWakeTime, 20000); // 200ms
 
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
 
@@ -91,7 +91,7 @@ void hillAssistTask(void *pvParameters)
 
 	while(1)
 	{
-		vTaskDelayUntil(&xLastWakeTime, 20000); //5ms
+		vTaskDelayUntil(&xLastWakeTime, 100000); //100 tick = 1 ms
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x2000000);
 
 	}
