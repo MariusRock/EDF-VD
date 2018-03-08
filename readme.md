@@ -7,6 +7,3 @@
 Mainly all changes are made in [os_tasks.c](free_rtos_matlab/source/os_tasks.c).
 A macro configUSE_EDFVD_SCHEDULER defines wether this adjustment is used.
 The [Coding Standard and Style Guide](http://www.freertos.org/FreeRTOS-Coding-Standard-and-Style-Guide.html) of FREERTOS is widely kept.
-
->egewwe
->>ewfefw
