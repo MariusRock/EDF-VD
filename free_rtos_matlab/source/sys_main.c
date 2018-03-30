@@ -1,4 +1,4 @@
-//#include "sys_pmu.h"
+#include "sys_pmu.h"
 #include "sys_common.h"
 #include "system.h"
 #include "stdint.h"
@@ -67,14 +67,14 @@ void CAWarningTask(void *pvParameters)
 	while(1)
 	{
 
-		vTaskDelayUntil(&xLastWakeTime, 20000); // 200ms
+		vTaskDelayUntil(&xLastWakeTime, 20000); //9ms
 
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
 
-//		for (i = 0; i<100000;i++){
-//
-//			gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
-//		}
+		for (i = 0; i<100000;i++){
+
+			gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
+		}
 
 	}
 
@@ -91,7 +91,7 @@ void hillAssistTask(void *pvParameters)
 
 	while(1)
 	{
-		vTaskDelayUntil(&xLastWakeTime, 100000); //100 tick = 1 ms
+		vTaskDelayUntil(&xLastWakeTime, 20000); //5ms
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x2000000);
 
 	}
