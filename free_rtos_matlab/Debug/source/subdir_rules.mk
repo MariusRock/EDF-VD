@@ -117,13 +117,6 @@ source/pinmux.obj: ../source/pinmux.c $(GEN_OPTS) | $(GEN_HDRS)
 	@echo 'Finished building: "$<"'
 	@echo ' '
 
-source/runTimeStatsTimer.obj: ../source/runTimeStatsTimer.c $(GEN_OPTS) | $(GEN_HDRS)
-	@echo 'Building file: "$<"'
-	@echo 'Invoking: ARM Compiler'
-	"D:/RTOS/ccsv7/tools/compiler/ti-cgt-arm_16.9.6.LTS/bin/armcl" -mv7R4 --code_state=32 --float_support=VFPv3D16 --include_path="D:/RTOS/ccsv7/tools/compiler/ti-cgt-arm_16.9.6.LTS/include" --include_path="C:/Users/Zenbook/git/EDF-VD/free_rtos_matlab/include" -g --gcc --display_error_number --diag_wrap=off --diag_warning=225 --enum_type=packed --abi=eabi --preproc_with_compile --preproc_dependency="source/runTimeStatsTimer.d_raw" --obj_directory="source" $(GEN_OPTS__FLAG) "$<"
-	@echo 'Finished building: "$<"'
-	@echo ' '
-
 source/sci.obj: ../source/sci.c $(GEN_OPTS) | $(GEN_HDRS)
 	@echo 'Building file: "$<"'
 	@echo 'Invoking: ARM Compiler'
