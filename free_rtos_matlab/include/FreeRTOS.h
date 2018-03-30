@@ -188,7 +188,7 @@ extern "C" {
 #endif
 
 #ifndef INCLUDE_pcTaskGetTaskName
-	#define INCLUDE_pcTaskGetTaskName 0
+	#define INCLUDE_pcTaskGetTaskName 1
 #endif
 
 #ifndef configUSE_APPLICATION_TASK_TAG
@@ -333,7 +333,8 @@ extern "C" {
 #ifndef traceTASK_SWITCHED_IN
 	/* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the selected task. */
-	#define traceTASK_SWITCHED_IN()
+	 #define traceTASK_SWITCHED_IN()
+   //  #define traceTASK_SWITCHED_IN() fprintf(stderr,"%u: in %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB))
 #endif
 
 #ifndef traceINCREASE_TICK_COUNT
@@ -356,6 +357,8 @@ extern "C" {
 	/* Called before a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the task being switched out. */
 	#define traceTASK_SWITCHED_OUT()
+ //#define traceTASK_SWITCHED_OUT() fprintf(stderr,"%u:out %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB));
+
 #endif
 
 #ifndef traceTASK_PRIORITY_INHERIT
@@ -503,6 +506,9 @@ extern "C" {
 
 #ifndef traceTASK_DELAY_UNTIL
 	#define traceTASK_DELAY_UNTIL()
+//#define traceTASK_DELAY_UNTIL()  char name[20];     \
+//                                 getTaskName(name); \
+//                                 printf("Task Delay: %s, ", name );
 #endif
 
 #ifndef traceTASK_DELAY
@@ -620,12 +626,14 @@ extern "C" {
 #if ( configGENERATE_RUN_TIME_STATS == 1 )
 
 	#ifndef portCONFIGURE_TIMER_FOR_RUN_TIME_STATS
-		#error If configGENERATE_RUN_TIME_STATS is defined then portCONFIGURE_TIMER_FOR_RUN_TIME_STATS must also be defined.  portCONFIGURE_TIMER_FOR_RUN_TIME_STATS should call a port layer function to setup a peripheral timer/counter that can then be used as the run time counter time base.
+        #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() initializeProfiler()
+		// #error If configGENERATE_RUN_TIME_STATS is defined then portCONFIGURE_TIMER_FOR_RUN_TIME_STATS must also be defined.  portCONFIGURE_TIMER_FOR_RUN_TIME_STATS should call a port layer function to setup a peripheral timer/counter that can then be used as the run time counter time base.
 	#endif /* portCONFIGURE_TIMER_FOR_RUN_TIME_STATS */
 
 	#ifndef portGET_RUN_TIME_COUNTER_VALUE
 		#ifndef portALT_GET_RUN_TIME_COUNTER_VALUE
-			#error If configGENERATE_RUN_TIME_STATS is defined then either portGET_RUN_TIME_COUNTER_VALUE or portALT_GET_RUN_TIME_COUNTER_VALUE must also be defined.  See the examples provided and the FreeRTOS web site for more information.
+            #define portGET_RUN_TIME_COUNTER_VALUE() getProfilerTimerCount()
+		    //#error If configGENERATE_RUN_TIME_STATS is defined then either portGET_RUN_TIME_COUNTER_VALUE or portALT_GET_RUN_TIME_COUNTER_VALUE must also be defined.  See the examples provided and the FreeRTOS web site for more information.
 		#endif /* portALT_GET_RUN_TIME_COUNTER_VALUE */
 	#endif /* portGET_RUN_TIME_COUNTER_VALUE */
 

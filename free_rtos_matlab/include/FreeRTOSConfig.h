@@ -92,7 +92,7 @@
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION	1
 #define configUSE_FPU							1
 #define configUSE_IDLE_HOOK			  0
-#define configUSE_TICK_HOOK			  0
+#define configUSE_TICK_HOOK			  1 // enabled for EDFVD
 #define configUSE_TRACE_FACILITY	  1
 #define configUSE_16_BIT_TICKS		  0
 #define configCPU_CLOCK_HZ			  ( ( unsigned portLONG ) 90000000 ) /* Timer clock. */
@@ -102,7 +102,7 @@
 #define configTOTAL_HEAP_SIZE		  ( ( size_t ) 8192 )
 #define configMAX_TASK_NAME_LEN		  ( 16 )
 #define configIDLE_SHOULD_YIELD		  0
-#define configGENERATE_RUN_TIME_STATS 0
+#define configGENERATE_RUN_TIME_STATS 1  // enabled for EDFVD
 #define configUSE_MALLOC_FAILED_HOOK  0
 
 

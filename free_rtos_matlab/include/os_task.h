@@ -1991,6 +1991,17 @@ eSleepModeStatus eTaskConfirmSleepModeStatus( void ) PRIVILEGED_FUNCTION;
  */
 void *pvTaskIncrementMutexHeldCount( void );
 
+#if ( configUSE_EDF_SCHEDULER == 1 )
+            unsigned long task_set_DEADLINE( void * );
+            void delete_all_low_tasks_from(List_t * pxList);
+            void set_deadlines_of_high_tasks_to_real_onces(void);
+#endif
+
+#if ( configUSE_EDF_SCHEDULER == 1 )
+            unsigned long check_schedulability();
+            void update_deadlines( unsigned long int x );
+#endif
+
 #ifdef __cplusplus
 }
 #endif
