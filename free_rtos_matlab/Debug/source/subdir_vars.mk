@@ -31,6 +31,7 @@ C_SRCS += \
 ../source/os_tasks.c \
 ../source/os_timer.c \
 ../source/pinmux.c \
+../source/runTimeStatsTimer.c \
 ../source/sci.c \
 ../source/sys_dma.c \
 ../source/sys_main.c \
@@ -57,6 +58,7 @@ C_DEPS += \
 ./source/os_tasks.d \
 ./source/os_timer.d \
 ./source/pinmux.d \
+./source/runTimeStatsTimer.d \
 ./source/sci.d \
 ./source/sys_dma.d \
 ./source/sys_main.d \
@@ -85,6 +87,7 @@ OBJS += \
 ./source/os_tasks.obj \
 ./source/os_timer.obj \
 ./source/pinmux.obj \
+./source/runTimeStatsTimer.obj \
 ./source/sci.obj \
 ./source/sys_core.obj \
 ./source/sys_dma.obj \
@@ -125,6 +128,7 @@ OBJS__QUOTED += \
 "source\os_tasks.obj" \
 "source\os_timer.obj" \
 "source\pinmux.obj" \
+"source\runTimeStatsTimer.obj" \
 "source\sci.obj" \
 "source\sys_core.obj" \
 "source\sys_dma.obj" \
@@ -155,6 +159,7 @@ C_DEPS__QUOTED += \
 "source\os_tasks.d" \
 "source\os_timer.d" \
 "source\pinmux.d" \
+"source\runTimeStatsTimer.d" \
 "source\sci.d" \
 "source\sys_dma.d" \
 "source\sys_main.d" \
@@ -189,6 +194,7 @@ C_SRCS__QUOTED += \
 "../source/os_tasks.c" \
 "../source/os_timer.c" \
 "../source/pinmux.c" \
+"../source/runTimeStatsTimer.c" \
 "../source/sci.c" \
 "../source/sys_dma.c" \
 "../source/sys_main.c" \
