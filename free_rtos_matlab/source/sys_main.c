@@ -147,6 +147,7 @@ return _pmuGetCycleCount_();
 void main(void)
 {
 
+
 	/* Set high end timer GIO port hetPort pin direction to all output */
 	gioSetDirection(hetPORT1, 0xFFFFFFFF);
 
