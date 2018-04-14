@@ -2338,7 +2338,7 @@ implementations require configUSE_TICKLESS_IDLE to be set to a value other than
                 if(it!=0) // skip first one  (xListEnd)
                 {
                     pxTCB=pxIterator->pvOwner;
-                    if(pxTCB->xi==1 && (pxTCB->VD_is_set==0) ) // if its a high critical task
+                    if(pxTCB->xi==1) // if its a high critical task
                     {
                         // number_of_items=uxListRemove( &( pxTCB->xGenericListItem ) ); // take it out
                         listSET_LIST_ITEM_VALUE( &( ( pxTCB )->xGenericListItem ),task_set_DEADLINE(pxTCB) ); // change value
