@@ -2341,7 +2341,8 @@ implementations require configUSE_TICKLESS_IDLE to be set to a value other than
                     if(pxTCB->xi==1) // if its a high critical task
                     {
                         // number_of_items=uxListRemove( &( pxTCB->xGenericListItem ) ); // take it out
-                        listSET_LIST_ITEM_VALUE( &( ( pxTCB )->xGenericListItem ),task_set_DEADLINE(pxTCB) ); // change value
+                        uint32_t new_deadline=listGET_LIST_ITEM_VALUE( &( pxTCB->xGenericListItem ) )+(pxTCB->virtualDeadline-pxTCB->Deadline);
+                        listSET_LIST_ITEM_VALUE( &( ( pxTCB )->xGenericListItem ),new_deadline); // change value
                         //vListInsert( &(xReadyTasksListEDFVD), &( ( pxTCB )->xGenericListItem ) ); // put it in again
                     break;
                     }
