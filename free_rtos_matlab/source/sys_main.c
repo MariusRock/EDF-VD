@@ -23,6 +23,7 @@
 #include "het.h"
 #include "gio.h"
 
+
 /* Define Task Handles */
 
 
@@ -32,6 +33,10 @@ xTaskHandle CAWarningTaskTcb;
 
 xTaskHandle hillAssistTcb;
 
+
+xTaskHandle T1Tcb;
+xTaskHandle T2Tcb;
+xTaskHandle T3Tcb;
 
 int *intvectreg = (int *) 0xFFFFFE70;
 int *intindexreg = (int *) 0xFFFFFE00;
@@ -48,7 +53,7 @@ int *intindexreg = (int *) 0xFFFFFE00;
 
 //#define f_HCLK (float) 180.0 // f in [MHz]; HCLK (depends on device setup)
 
-
+#define DONT_CARE 42
 
 //uint8_t statsBuffer[40*5]; // Enough space for 5 tasks - this needs to be global, since task stack is too small
 
@@ -61,16 +66,14 @@ uint32_t para2[4];
 unsigned int impicit_deadline2=100000;
 
 uint32_t para3[4];
-unsigned int impicit_deadline3=2000;
+unsigned int impicit_deadline3=90;
 
 uint32_t para4[4];
-unsigned int impicit_deadline4=2000;
+unsigned int impicit_deadline4=200;
 
 uint32_t para5[4];
-unsigned int impicit_deadline5=2000;
+unsigned int impicit_deadline5=300;
 
-uint32_t para6[4];
-unsigned int impicit_deadline6=2000;
 
 // uint32 pmuCYCLE_COUNTER=0;
 
@@ -101,7 +104,7 @@ void CAWarningTask(void *pvParameters)
 
 	while(1)
 	{
-	    //make_capacity(4500);
+	    make_capacity(300);
 		vTaskDelayUntil(&xLastWakeTime,impicit_deadline1);
 		gioSetPort(hetPORT1, gioGetPort(hetPORT1) ^ 0x80000021);
 	}
@@ -124,6 +127,46 @@ void hillAssistTask(void *pvParameters)
 	}
 }
 
+void custom_task1(void *pvParameters)
+{
+    //For periodicity
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
+    while(1)
+    {
+        make_capacity(15);
+        vTaskDelayUntil(&xLastWakeTime,impicit_deadline3); // 100 tick = 1 ms  or 1 tick = (1000 / configTICK_RATE_HZ)ms
+    }
+}
+
+void custom_task2(void *pvParameters)
+{
+    //For periodicity
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
+    while(1)
+    {
+        make_capacity(45);
+        vTaskDelayUntil(&xLastWakeTime,impicit_deadline4); // 100 tick = 1 ms  or 1 tick = (1000 / configTICK_RATE_HZ)ms
+    }
+}
+
+void custom_task3(void *pvParameters)
+{
+    //For periodicity
+    TickType_t xLastWakeTime;
+    xLastWakeTime = xTaskGetTickCount();
+
+    while(1)
+    {
+        make_capacity(90);
+        vTaskDelayUntil(&xLastWakeTime,impicit_deadline5); // 100 tick = 1 ms  or 1 tick = (1000 / configTICK_RATE_HZ)ms
+    }
+}
+
+
 
 void initializeProfiler()
 {
@@ -144,6 +187,7 @@ return _pmuGetCycleCount_();
 }
 
 
+
 void main(void)
 {
 
@@ -159,90 +203,55 @@ void main(void)
 	para1[1]= 4000; // c_low    = 40  ms = 4000 * 10^(-5) seconds
  	para1[2]= 7000; // c_high   = 70  ms
 	para1[3]=    0; // xi       = low critical task
-	if (xTaskCreate(CAWarningTask,"CA Task", UART_STACK_SIZE, para1, 2, &CAWarningTaskTcb) != pdTRUE)
-	{
-		/* Task could not be created */
-		while(1);
-	}
-
 
     para2[0]=impicit_deadline2; // deadline = 1000 ms
     para2[1]= 40000; // c_low    = 400  ms
     para2[2]= 70000; // c_high   = 700  ms
     para2[3]=     1; // xi       = high critical task
-	if (xTaskCreate(hillAssistTask,"hill Assist Task", configMINIMAL_STACK_SIZE,para2, 3, &hillAssistTcb) != pdTRUE)
-	{
-		/* Task could not be created */
-		while(1);
-	}
 
+	para3[0]=impicit_deadline3; // deadline = 0.9ms
+	para3[1]=20;
+	para3[2]=DONT_CARE;
+	para3[3]=0;
 
-//	para1[0]=impicit_deadline3; // deadline = 20ms
-//	para1[1]=200; // c_low  = 2 ms
-//	para1[2]=300; // c_high = 3 ms
-//	para1[3]=1;
-//
-//    para2[0]=impicit_deadline3; // deadline = 20ms
-//    para2[1]=200; // c_low  = 2 ms
-//    para2[2]=300; // c_high = 3 ms
-//    para2[3]=1;
-//
-//    para3[0]=impicit_deadline3; // deadline = 20ms
-//    para3[1]=200; // c_low  = 2 ms
-//    para3[2]=300; // c_high = 3 ms
-//    para3[3]=1;
-//
-//    para4[0]=impicit_deadline3; // deadline = 20ms
-//    para4[1]=200; // c_low  = 2 ms
-//    para4[2]=300; // c_high = 3 ms
-//    para4[3]=1;
-//
-//    para5[0]=impicit_deadline3; // deadline = 20ms
-//    para5[1]=200; // c_low  = 2 ms
-//    para5[2]=300; // c_high = 3 ms
-//    para5[3]=0;
-//
-//    para6[0]=impicit_deadline3; // deadline = 20ms
-//    para6[1]=200; // c_low  = 2 ms
-//    para6[2]=300; // c_high = 3 ms
-//    para6[3]=0;
-//
-//    if (xTaskCreate(canTask,"CAN Task", configMINIMAL_STACK_SIZE, para1, 7, &canTaskTcb) != pdTRUE)
+    para4[0]=impicit_deadline4; // deadline = 2ms
+    para4[1]=50;
+    para4[2]=DONT_CARE;
+    para4[3]=0;
+
+    para5[0]=impicit_deadline5; // deadline = 3ms
+    para5[1]=100;
+    para5[2]=150;
+    para5[3]=1;
+
+//    if (xTaskCreate(CAWarningTask,"CA", UART_STACK_SIZE, para1, 2, &CAWarningTaskTcb) != pdTRUE)
 //    {
 //        /* Task could not be created */
 //        while(1);
 //    }
 //
-//    if (xTaskCreate(steerTask,"Steer Task", configMINIMAL_STACK_SIZE, para2, 6, &steerTaskTcb) != pdTRUE)
+//    if (xTaskCreate(hillAssistTask,"hill", configMINIMAL_STACK_SIZE,para2, 3, &hillAssistTcb) != pdTRUE)
 //    {
 //        /* Task could not be created */
 //        while(1);
 //    }
-//
-//    if (xTaskCreate(radarTask,"Radar Task", configMINIMAL_STACK_SIZE, para3, 5, &radarTaskTcb) != pdTRUE)
-//    {
-//        /* Task could not be created */
-//        while(1);
-//    }
-//
-//    if (xTaskCreate(vehToVehTask,"Veh to Veh Task", configMINIMAL_STACK_SIZE, para5, 5, &vehToVehTaskTcb) != pdTRUE)
-//    {
-//        /* Task could not be created */
-//        while(1);
-//    }
-//
-//    if (xTaskCreate(CATask,"Collision Avoidance Task", UART_STACK_SIZE, para4, 4, &CATcb) != pdTRUE)
-//    {
-//
-//        /* Task could not be created */
-//        while(1);
-//    }
-//
-//    if (xTaskCreate(cruiseControlTask,"Cruise Control Task", configMINIMAL_STACK_SIZE, para6, 3, &cruiseControlTaskTcb) != pdTRUE)
-//    {
-//        /* Task could not be created */
-//        while(1);
-//    }
+
+    if (xTaskCreate(custom_task1,"T1", configMINIMAL_STACK_SIZE, para3, 7, &T1Tcb) != pdTRUE)
+    {
+        /* Task could not be created */
+        while(1);
+    }
+    if (xTaskCreate(custom_task2,"T2", configMINIMAL_STACK_SIZE, para4, 6, &T2Tcb) != pdTRUE)
+    {
+        /* Task could not be created */
+        while(1);
+    }
+    if (xTaskCreate(custom_task3,"T3", configMINIMAL_STACK_SIZE, para5, 5, &T3Tcb) != pdTRUE)
+    {
+        /* Task could not be created */
+        while(1);
+    }
+
 
 
 

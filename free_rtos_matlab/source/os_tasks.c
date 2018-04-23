@@ -232,6 +232,7 @@ PRIVILEGED_DATA static List_t xPendingReadyList;                        /*< Task
 #if ( configUSE_EDFVD_SCHEDULER == 1 )
 PRIVILEGED_DATA static List_t xReadyTasksListEDFVD;                     /*< ready tasks according to there (virtual) deadline */
 enum { high, low } mode=low;
+enum { no, yes } job_interrupted=yes;
 uint32_t critical_time_instance; // we trigger high critical behaivour if some task executes beyond it
 #endif
 
@@ -1081,6 +1082,11 @@ StackType_t *pxTopOfStack;
         configASSERT( ( xTimeIncrement > 0U ) );
         configASSERT( uxSchedulerSuspended == 0 );
 
+#if( configUSE_EDFVD_SCHEDULER == 1)
+                pxCurrentTCB->ulRunTimeCounter = 0;
+                job_interrupted=no;
+#endif
+
         vTaskSuspendAll();
         {
             /* Minor optimisation.  The tick count cannot change in this
@@ -1127,9 +1133,6 @@ StackType_t *pxTopOfStack;
             if( xShouldDelay != pdFALSE )
             {
                 traceTASK_DELAY_UNTIL();
-#if( configUSE_EDFVD_SCHEDULER == 1)
-                pxCurrentTCB->ulRunTimeCounter = 0;
-#endif
 
                 /* Remove the task from the ready list before adding it to the
                 blocked list as the same list item is used for both lists. */
@@ -1897,6 +1900,31 @@ void vTaskStartScheduler( void )
     x=check_schedulability(); // check before idle task is created
     update_deadlines(x);     // update deadlines_accordingly to x
     pxCurrentTCB = (TCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( &(xReadyTasksListEDFVD ) );
+
+
+//    char ABC[4];
+//    List_t * pxList=&xReadyTasksListEDFVD;
+//    TCB_t *pxTCB;
+//    unsigned int it=0;
+//    ListItem_t *pxIterator;
+//    for( pxIterator = ( ListItem_t * ) &( pxList->xListEnd ); it <= pxList->uxNumberOfItems ; pxIterator = pxIterator->pxNext ) /*lint !e826 !e740 The mini list structure is used as the list end to save RAM.  This is checked and valid. */
+//    {
+//        if(it!=0) // skip first one  (xListEnd)
+//    {
+//        pxTCB=pxIterator->pvOwner;
+//        ABC[it-1]=pxTCB->pcTaskName[1];
+//
+//
+//    } // end of if it
+//        it++;
+//    }
+//
+//    ABC[4]='\0';
+//
+//    fprintf(stderr,"%s: in %s \n",ABC);
+
+
+
     critical_time_instance = pxCurrentTCB->c_low * 1800;
 #endif
 BaseType_t xReturn;
@@ -2240,7 +2268,7 @@ UBaseType_t uxTaskGetNumberOfTasks( void )
                         #ifdef portALT_GET_RUN_TIME_COUNTER_VALUE
                             portALT_GET_RUN_TIME_COUNTER_VALUE( ( *pulTotalRunTime ) );
                         #else
-                            *pulTotalRunTime = portGET_RUN_TIME_COUNTER_VALUE();
+                            *pulTotalRunTime = xTickCount ; //portGET_RUN_TIME_COUNTER_VALUE();
                         #endif
                     }
                 }
@@ -2356,9 +2384,10 @@ implementations require configUSE_TICKLESS_IDLE to be set to a value other than
     void vApplicationTickHook( void ){
 #if ( configUSE_EDFVD_SCHEDULER == 1 )
 
-        uint32_t runtime= portGET_RUN_TIME_COUNTER_VALUE(); // and /(1800) <=> runtime in 10^(-5) seconds
+        uint32_t runtime= xTickCount; //portGET_RUN_TIME_COUNTER_VALUE(); // and /(1800) <=> runtime in 10^(-5) seconds
         if(runtime >= critical_time_instance && mode==low && pxCurrentTCB->xi!=2)
             {
+                traceTASK_SWITCH_MODE;
                 mode=high;
                 delete_all_low_tasks_from(&xReadyTasksListEDFVD); // deletes all low tasks from ready list
                 delete_all_low_tasks_from(pxDelayedTaskList); // deletes all low tasks from delay list
@@ -2657,7 +2686,7 @@ void vTaskSwitchContext( void )
                 #ifdef portALT_GET_RUN_TIME_COUNTER_VALUE
                     portALT_GET_RUN_TIME_COUNTER_VALUE( ulTotalRunTime );
                 #else
-                    ulTotalRunTime = portGET_RUN_TIME_COUNTER_VALUE() ;
+                    ulTotalRunTime = xTickCount ; // portGET_RUN_TIME_COUNTER_VALUE() ;
                 #endif
 
                 /* Add the amount of time the task has been running to the
@@ -2667,11 +2696,12 @@ void vTaskSwitchContext( void )
                 overflows.  The guard against negative values is to protect
                 against suspect run time stat counter implementations - which
                 are provided by the application, not the kernel. */
-                if( ulTotalRunTime > ulTaskSwitchedInTime )
+#if( configUSE_EDFVD_SCHEDULER == 1)
+                if( ulTotalRunTime > ulTaskSwitchedInTime && job_interrupted==yes)
                 {
                     pxCurrentTCB->ulRunTimeCounter += ( ulTotalRunTime - ulTaskSwitchedInTime );
                 }
-//                if( xTickCount > ulTaskSwitchedInTime )
+                //                if( xTickCount > ulTaskSwitchedInTime )
 //                                {
 //                                    pxCurrentTCB->ulRunTimeCounter += ( xTickCount - ulTaskSwitchedInTime );
 //                                }
@@ -2680,6 +2710,8 @@ void vTaskSwitchContext( void )
                     mtCOVERAGE_TEST_MARKER();
                 }
                 ulTaskSwitchedInTime = ulTotalRunTime;
+                job_interrupted=yes;
+                #endif
         }
         #endif /* configGENERATE_RUN_TIME_STATS */
 
@@ -2691,7 +2723,7 @@ void vTaskSwitchContext( void )
         optimised asm code. */
 #if ( configUSE_EDFVD_SCHEDULER == 1 )
         pxCurrentTCB = (TCB_t * ) listGET_OWNER_OF_HEAD_ENTRY( &(xReadyTasksListEDFVD ) );
-        critical_time_instance = ulTotalRunTime +  ((pxCurrentTCB->c_low * 1800) - pxCurrentTCB->ulRunTimeCounter);
+        critical_time_instance = ulTotalRunTime +  ((pxCurrentTCB->c_low) - pxCurrentTCB->ulRunTimeCounter);
         if(critical_time_instance < ulTotalRunTime){
             // overflow !!!
         }

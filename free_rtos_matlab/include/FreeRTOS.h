@@ -330,13 +330,6 @@ extern "C" {
 	#define traceEND()
 #endif
 
-#ifndef traceTASK_SWITCHED_IN
-	/* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
-	to the task control block of the selected task. */
-	 #define traceTASK_SWITCHED_IN()
-   //  #define traceTASK_SWITCHED_IN() fprintf(stderr,"%u: in %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB))
-#endif
-
 #ifndef traceINCREASE_TICK_COUNT
 	/* Called before stepping the tick count after waking from tickless idle
 	sleep. */
@@ -353,12 +346,25 @@ extern "C" {
 	#define traceLOW_POWER_IDLE_END()
 #endif
 
+#ifndef traceTASK_SWITCHED_IN
+    /* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
+    to the task control block of the selected task. */
+//#define traceTASK_SWITCHED_IN()
+#define traceTASK_SWITCHED_IN() fprintf(stderr,"%u: in %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB))
+#endif
+
 #ifndef traceTASK_SWITCHED_OUT
 	/* Called before a task has been selected to run.  pxCurrentTCB holds a pointer
 	to the task control block of the task being switched out. */
-	#define traceTASK_SWITCHED_OUT()
- //#define traceTASK_SWITCHED_OUT() fprintf(stderr,"%u:out %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB));
+//#define traceTASK_SWITCHED_OUT()
+#define traceTASK_SWITCHED_OUT() fprintf(stderr,"%u:out %s \n",xTickCount,pcTaskGetTaskName(pxCurrentTCB));
+#endif
 
+#ifndef traceTASK_SWITCH_MODE
+    /* Called after a task has been selected to run.  pxCurrentTCB holds a pointer
+    to the task control block of the selected task. */
+//#define traceTASK_SWITCH_MODE
+#define traceTASK_SWITCH_MODE fprintf(stderr,"%u: mode switch\n",xTickCount)
 #endif
 
 #ifndef traceTASK_PRIORITY_INHERIT
